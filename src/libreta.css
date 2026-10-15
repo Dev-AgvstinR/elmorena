@@ -28,7 +28,7 @@ h1 > .libreta-icon, h2 > .libreta-icon, h3 > .libreta-icon { margin-right: .5rem
 .stock-switch button { display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 52px; padding: 10px 24px; border-radius: 15px; font-size: 1.1rem; font-weight: 700; color: #57534e; }
 .stock-switch button.is-active { background: white; color: #365336; box-shadow: 0 3px 12px rgb(41 37 36 / 8%); }
 .stock-switch button:focus-visible { outline: 3px solid #446744; outline-offset: 2px; }
-@media (max-width: 639px) {
+@media (max-width: 767px) {
   .app-layout { padding-bottom: calc(108px + env(safe-area-inset-bottom, 0px)); }
   .app-navigation { position: fixed; top: auto; left: 12px; right: 12px; bottom: max(12px, env(safe-area-inset-bottom, 0px)); border: 1px solid #dbe3d3; border-radius: 26px; padding: 8px; box-shadow: 0 8px 36px rgb(41 37 36 / 16%); background: rgb(255 255 255 / 97%); }
   .navigation-brand { display: none; }
@@ -40,4 +40,66 @@ h1 > .libreta-icon, h2 > .libreta-icon, h3 > .libreta-icon { margin-right: .5rem
   .stock-switch { width: 100%; }
   .stock-switch button { flex: 1; padding-inline: 12px; }
   .daily-menu-dialog { max-height: calc(100dvh - 24px); width: calc(100% - 24px); }
+}
+
+/* Espacios y controles adaptados al ancho real del teléfono. */
+.page-content, .section-card, .section-card > *, .order-product, .order-cart-item { min-width: 0; }
+.order-product { touch-action: manipulation; }
+.order-quantity { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; margin-top: 12px; }
+.order-quantity .libreta-secondary { width: 48px; min-height: 48px; padding: 8px; }
+.order-actions { display: flex; flex-wrap: wrap; gap: 12px; }
+@media (max-width: 767px) {
+  .app-layout { padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px)); }
+  .navigation-link { min-height: 62px; padding-block: 8px; }
+  .app-navigation { left: 10px; right: 10px; padding: 6px; border-radius: 23px; }
+  .page-content { padding: 24px 16px; }
+  .page-content > div > header { margin-bottom: 24px; }
+  .page-content h1 { font-size: clamp(1.9rem, 7vw, 2.4rem); }
+  .section-card { border-radius: 22px; padding: 20px; margin-bottom: 20px; }
+  .section-card h2 { font-size: 1.35rem; }
+  .section-card > .flex > .libreta-button, .section-card > .flex > .libreta-secondary { width: 100%; }
+  .daily-menu-dialog { border-radius: 22px; padding: 20px; max-height: calc(100dvh - 24px - env(safe-area-inset-top, 0px)); }
+  .daily-menu-dialog h2 { font-size: 1.6rem; }
+  .daily-menu-dialog .libreta-input { max-width: 100%; }
+  .order-actions { position: sticky; bottom: -20px; padding: 14px 0 max(14px, env(safe-area-inset-bottom, 0px)); background: white; border-top: 1px solid #e7e5e4; }
+  .order-actions > .libreta-button { flex: 1; }
+  .order-product > .p-4 { padding: 12px; }
+  .order-product .text-xl { font-size: 1.1rem; }
+  .order-product .h-28 { height: 100px; }
+  .order-product .libreta-icon-badge { width: 36px; height: 36px; margin: 12px 12px 0; }
+  .sales-order-card { padding: 18px; border-radius: 18px; }
+  .sales-payment-actions { display: grid; grid-template-columns: 1fr; gap: 10px; }
+  .sales-payment-actions > button { width: 100%; }
+  .sales-edit-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .sales-edit-actions > button { min-width: 0; padding-inline: 10px; }
+}
+@media (max-width: 639px) {
+  :root { font-size: 16px; }
+  .page-content { padding-inline: 12px; }
+  .section-card { padding: 16px; }
+  .libreta-button, .libreta-secondary { min-height: 52px; padding: 12px 16px; font-size: 1.05rem; }
+  .libreta-input { font-size: 18px; padding: 12px; }
+  .daily-menu-dialog { width: calc(100% - 16px); padding: 16px; }
+  .order-actions { bottom: -16px; }
+  .sales-summary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .sales-summary-grid > div { padding: 14px; border-radius: 18px; }
+  .sales-summary-grid > div:first-child { grid-column: 1 / -1; display: grid; grid-template-columns: auto 1fr; column-gap: 14px; align-items: center; }
+  .sales-summary-grid > div:first-child .libreta-icon-badge { grid-row: span 2; margin: 0; }
+  .sales-summary-grid > div:first-child dd { font-size: 2rem; margin-top: 0; }
+  .sales-summary-grid > div:not(:first-child) .libreta-icon-badge { width: 36px; height: 36px; margin-bottom: 10px; }
+  .sales-summary-grid dt { font-size: 1rem; }
+  .sales-summary-grid dd { font-size: clamp(1.15rem, 4.5vw, 1.45rem); overflow-wrap: anywhere; }
+  .stock-switch { gap: 4px; padding: 5px; }
+  .stock-switch button { padding-inline: 8px; gap: 8px; font-size: 1rem; }
+  .page-content details { padding: 18px; }
+  .page-content summary { font-size: 1.2rem; overflow-wrap: anywhere; }
+}
+@media (max-width: 359px) {
+  .order-products { grid-template-columns: 1fr; }
+  .order-product { display: flex; align-items: center; }
+  .order-product > img { width: 80px; height: 100%; max-height: 120px; object-fit: cover; flex-shrink: 0; }
+  .order-product > .libreta-icon-badge { flex-shrink: 0; margin: 12px; }
+  .order-product > .p-4 { flex: 1; min-width: 0; }
+  .order-quantity { gap: 8px; }
+  .order-actions { flex-direction: column; }
 }

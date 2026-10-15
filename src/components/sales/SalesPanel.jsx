@@ -5,6 +5,8 @@ import { useSalesMutations } from "../../hooks/mutations/useSalesMutations";
 import { groupOrders, getOrderDishes, getOrderBeverages, orderItemName } from "../../utils/sales";
 import { useBeverages } from '../../hooks/useStock';
 import OrderComposer from "./OrderComposer";
+import SplitPaymentDialog from './SplitPaymentDialog';
+import PaymentSummary from './PaymentSummary';
 
 const money = new Intl.NumberFormat("es-AR", {
   style: "currency",
@@ -21,6 +23,7 @@ export default function SalesPanel({
   const beverages = useBeverages(userId);
   const { create, pay, edit, remove } = useSalesMutations(userId);
   const [editing, setEditing] = useState(null);
+  const [splitOrder, setSplitOrder] = useState(null);
   const modalOpen = orderOpen || Boolean(editing);
   const busy =
     create.isPending || pay.isPending || edit.isPending || remove.isPending;
@@ -74,7 +77,7 @@ export default function SalesPanel({
     return (
       <li
         key={order.id}
-        className="rounded-3xl border border-stone-200 bg-white p-6"
+        className="sales-order-card rounded-3xl border border-stone-200 bg-white p-6"
       >
         <h3 className="break-words text-xl font-semibold">
           {order.reference || "Sin referencia"}
@@ -91,10 +94,7 @@ export default function SalesPanel({
           Total: {money.format(order.totalCents / 100)}
         </p>
         {isPaid ? (
-          <p className="text-lg text-green-900">
-            Pagado ·{" "}
-            {order.method === "efectivo" ? "Efectivo" : "Transferencia"}
-          </p>
+          <PaymentSummary order={order} />
         ) : (
           <>
             <p className="mb-4 text-stone-600">
@@ -105,7 +105,7 @@ export default function SalesPanel({
                 timeStyle: "short",
               }).format(new Date(order.createdAt))}
             </p>
-            <div className="flex flex-wrap gap-3">
+            <div className="sales-payment-actions flex flex-wrap gap-3">
               <button
                 type="button"
                 className="libreta-button"
@@ -118,10 +118,11 @@ export default function SalesPanel({
                 disabled={busy}
                 onClick={() => collect(order.id, "transferencia")}
               ><Icon name="transfer" />Cobrar por transferencia</button>
+              <button type="button" className="libreta-secondary" disabled={busy} onClick={() => setSplitOrder(order)}><Icon name="cash" />Pago combinado</button>
             </div>
           </>
         )}
-        <div className="mt-4 flex flex-wrap gap-3">
+        <div className="sales-edit-actions mt-4 flex flex-wrap gap-3">
           <button
             type="button"
             className="libreta-secondary"
@@ -145,6 +146,7 @@ export default function SalesPanel({
   }
   return (
     <div className="mb-7">
+      {splitOrder && <SplitPaymentDialog order={splitOrder} mutation={pay} onClose={() => setSplitOrder(null)} onSaved={() => { setSplitOrder(null); setNotice('Pago combinado registrado. El pedido está en Pagados.'); }} />}
       <dialog
         ref={dialogRef}
         className="daily-menu-dialog"

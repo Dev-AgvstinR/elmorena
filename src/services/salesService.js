@@ -25,17 +25,21 @@ export async function createPendingSale({ id, ...input }) {
   return data;
 }
 
-export async function paySale({ id, method }) {
-  const { data, error } = await supabase.rpc('pay_order', { p_id: id, p_method: method });
+export async function paySale({ id, method, cashAmount, transferAmount, revision }) {
+  const request = method === 'mixto'
+    ? supabase.rpc('pay_order_split', { p_id: id, p_cash: cashAmount, p_transfer: transferAmount, p_revision: revision })
+    : supabase.rpc('pay_order', { p_id: id, p_method: method });
+  const { data, error } = await request;
   if (error) throw error;
   return data;
 }
 
-export async function editOrder({ id, revision, state, method, ...input }) {
+export async function editOrder({ id, revision, state, method, cashAmount, transferAmount, ...input }) {
   const order = validateCart(input);
-  const { data, error } = await supabase.rpc('edit_order', {
+  const { data, error } = await supabase.rpc('edit_order_payment', {
     p_id: id, p_revision: revision, p_state: state, p_method: method ?? null,
     p_reference: order.reference,
+    p_cash: cashAmount ?? null, p_transfer: transferAmount ?? null,
     p_items: order.items.map((item) => ({ dish_id: item.dishId ?? null, beverage_id: item.beverageId ?? null, quantity: item.quantity })),
   });
   if (error) throw error;

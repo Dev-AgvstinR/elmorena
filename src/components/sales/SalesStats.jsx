@@ -21,7 +21,7 @@ export default function SalesStats({ userId, date, actions }) {
       </h2>
       {actions}
       </div>
-      <dl className="grid gap-4 sm:grid-cols-3" aria-busy={query.isPending}>
+      <dl className="sales-summary-grid grid gap-4 sm:grid-cols-3" aria-busy={query.isPending}>
         <div className="rounded-3xl border border-[#446744] bg-[#557c55] p-6 text-white">
           <span className="libreta-icon-badge is-light">
             <Icon name="dish" />

@@ -16,9 +16,9 @@ export function summarizePaidSales(sales) {
   return sales.reduce((summary, sale) => {
     if (sale.status !== 'vigente' || sale.payment_status !== 'pagado') return summary;
     if (!sale.beverage_id) summary.plates += Number(sale.quantity);
-    const cents = Math.round(Number(sale.total) * 100);
-    if (sale.payment_method === 'efectivo') summary.cashCents += cents;
-    if (sale.payment_method === 'transferencia') summary.transferCents += cents;
+    const payment = salePayment(sale);
+    summary.cashCents += payment.cashCents;
+    summary.transferCents += payment.transferCents;
     return summary;
   }, { plates: 0, cashCents: 0, transferCents: 0 });
 }
@@ -37,10 +37,13 @@ export function groupOrders(sales) {
   const groups = new Map();
   for (const sale of sales) {
     const id = sale.order_id || sale.id;
-    if (!groups.has(id)) groups.set(id, { id, reference: sale.table_reference, createdAt: sale.created_at, method: sale.payment_method, state: sale.payment_status, revision: sale.order_revision ?? 0, items: [], totalCents: 0 });
+    if (!groups.has(id)) groups.set(id, { id, reference: sale.table_reference, createdAt: sale.created_at, method: sale.payment_method, state: sale.payment_status, revision: sale.order_revision ?? 0, items: [], totalCents: 0, cashCents: 0, transferCents: 0 });
     const group = groups.get(id);
     group.items.push(sale);
     group.totalCents += Math.round(Number(sale.total) * 100);
+    const payment = salePayment(sale);
+    group.cashCents += payment.cashCents;
+    group.transferCents += payment.transferCents;
   }
   return [...groups.values()];
 }
@@ -71,3 +74,23 @@ export function getOrderBeverages(beverages, order) {
 }
 
 export function orderItemName(item) { return item.beverages?.name ?? item.dishes?.name ?? (item.beverage_id ? 'Bebida' : 'Comida'); }
+
+export function salePayment(sale) {
+  const total = Math.round(Number(sale.total) * 100);
+  return {
+    cashCents: sale.cash_amount != null ? Math.round(Number(sale.cash_amount) * 100) : sale.payment_method === 'efectivo' ? total : 0,
+    transferCents: sale.transfer_amount != null ? Math.round(Number(sale.transfer_amount) * 100) : sale.payment_method === 'transferencia' ? total : 0,
+  };
+}
+export function moneyCents(value) {
+  const text = String(value).trim().replace(',', '.');
+  if (!/^\d+(?:\.\d{1,2})?$/.test(text)) throw new Error('Ingresá un importe válido con hasta dos decimales, sin puntos de miles.');
+  const cents = Math.round(Number(text) * 100);
+  if (!Number.isSafeInteger(cents)) throw new Error('El importe es demasiado grande.');
+  return cents;
+}
+export function validateSplit(cash, transfer, totalCents) {
+  const cashCents = moneyCents(cash), transferCents = moneyCents(transfer);
+  if (cashCents + transferCents !== totalCents) throw new Error('Efectivo y transferencia deben sumar exactamente el total del pedido.');
+  return { cashAmount: cashCents / 100, transferAmount: transferCents / 100 };
+}

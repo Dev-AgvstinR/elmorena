@@ -25,7 +25,7 @@ export default function Stock({ userId }) {
     try { await (isDish ? archive.mutateAsync(id) : stock.hide.mutateAsync(id)); setNotice(isDish ? 'Comida oculta del catálogo.' : 'Bebida oculta del stock.'); }
     catch (failure) { setError(failure.message); }
   }
-  return <main className="min-h-screen px-5 py-8 md:px-10"><div className="mx-auto max-w-5xl">
+  return <main className="page-content min-h-screen px-5 py-8 md:px-10"><div className="mx-auto max-w-5xl">
     <header className="mb-8"><p className="mb-2 text-lg text-stone-600">Todo listo para cocinar y servir</p><h1 className="text-4xl font-semibold"><Icon name="stock" />Stock</h1><p className="mt-3 max-w-2xl text-lg text-stone-600">Controlá tus bebidas y administrá las comidas que podés reutilizar en el menú de cada día.</p></header>
     <div className="stock-switch mb-8" aria-label="Categoría de stock"><button className={tab === 'beverages' ? 'is-active' : ''} aria-pressed={tab === 'beverages'} onClick={() => setTab('beverages')}><Icon name="drink" />Bebidas</button><button className={tab === 'dishes' ? 'is-active' : ''} aria-pressed={tab === 'dishes'} onClick={() => setTab('dishes')}><Icon name="dish" />Comidas</button></div>
     <p role="status" className="mb-4 text-lg text-green-900">{notice}</p>{error && <p role="alert" className="mb-4 text-lg text-red-800">{error}</p>}

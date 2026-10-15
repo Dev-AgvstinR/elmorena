@@ -57,7 +57,7 @@ export default function Home({ userId }) {
   }
 
   return (
-    <main className="min-h-screen px-5 py-8 md:px-10">
+    <main className="page-content min-h-screen px-5 py-8 md:px-10">
       <div className="mx-auto max-w-5xl">
         <header className="mb-10">
           <p className="mb-2 text-lg capitalize text-stone-600">
