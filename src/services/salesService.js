@@ -1,19 +1,16 @@
 import { supabase } from './supabaseClient';
-import { requireUser } from './authService';
-import { paymentDayRange, validateCart } from '../utils/sales';
+import { validateCart } from '../utils/sales';
 
-export async function getSales(date) {
-  const user = await requireUser();
-  const { start, end } = paymentDayRange(date);
-  const select = '*, dishes(name), beverages(name)';
-  const results = await Promise.all([
-    supabase.from('sales').select(select).eq('user_id', user.id).eq('status', 'vigente')
-      .eq('payment_status', 'pendiente').order('created_at'),
-    supabase.from('sales').select(select).eq('user_id', user.id).eq('status', 'vigente')
-      .eq('payment_status', 'pagado').is('closed_day', null).gte('paid_at', start).lt('paid_at', end).order('paid_at', { ascending: false }),
-  ]);
-  for (const result of results) if (result.error) throw result.error;
-  return { pending: results[0].data, paid: results[1].data };
+export async function getSalesPage(date, state, offset = 0) {
+  const { data, error } = await supabase.rpc('sales_page', { p_date: date, p_state: state, p_offset: offset, p_limit: 20 });
+  if (error) throw error;
+  return { ...data, nextOffset: data.hasMore ? offset + 20 : undefined };
+}
+
+export async function getSalesSummary(date) {
+  const { data, error } = await supabase.rpc('sales_summary', { p_date: date });
+  if (error) throw error;
+  return data;
 }
 
 export async function createPendingSale({ id, ...input }) {
@@ -50,3 +47,4 @@ export async function deleteOrder({ id, revision }) {
   const { error } = await supabase.rpc('delete_order', { p_id: id, p_revision: revision });
   if (error) throw error;
 }
+

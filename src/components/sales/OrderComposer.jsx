@@ -1,3 +1,4 @@
+import { notify } from '../../utils/notifications';
 import Icon from '../common/Icon';
 import { useRef, useState } from 'react';
 import { getDishImageUrl } from '../../services/dishService';
@@ -44,7 +45,7 @@ export default function OrderComposer({ dishes, beverages = [], beveragesLoading
       const split = initialOrder?.state === 'pagado' && method === 'mixto' ? validateSplit(cash, transfer, total) : {};
       await create.mutateAsync(initialOrder ? { ...order, ...split, id: initialOrder.id, revision: initialOrder.revision, state: initialOrder.state, method: initialOrder.state === 'pagado' ? method : null } : { ...order, id: attempt.current.id });
       onSaved();
-    } catch (failure) { setError(`No se pudo guardar. ${failure.message}`); }
+    } catch (failure) { notify.error(failure.message); setError(`No se pudo guardar. ${failure.message}`); }
   }
   return <form onSubmit={submit} className="space-y-6">
     <p className="text-lg text-stone-600">Agregá comidas y bebidas al mismo pedido.</p>
@@ -78,3 +79,4 @@ export default function OrderComposer({ dishes, beverages = [], beveragesLoading
     <div className="order-actions"><button className="libreta-button" disabled={busy || !items.length}>{busy ? 'Guardando…' : initialOrder ? 'Guardar cambios' : 'Agregar a pendientes'}</button><button type="button" className="libreta-secondary" disabled={busy} onClick={onClose}><Icon name="cancel" />Cancelar</button></div>
   </form>;
 }
+

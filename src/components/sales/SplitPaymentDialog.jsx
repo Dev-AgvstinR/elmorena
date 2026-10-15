@@ -1,3 +1,4 @@
+import { notify } from '../../utils/notifications';
 import { useState } from 'react';
 import CenteredDialog from '../common/CenteredDialog';
 import SplitPaymentFields from './SplitPaymentFields';
@@ -16,7 +17,7 @@ export default function SplitPaymentDialog({ order, mutation, onClose, onSaved }
       const payment = validateSplit(cash, transfer, order.totalCents);
       await mutation.mutateAsync({ id: order.id, revision: order.revision, method: 'mixto', ...payment });
       onSaved();
-    } catch (failure) { setError(failure.message); }
+    } catch (failure) { notify.error(failure.message); setError(failure.message); }
   }
   return <CenteredDialog title="Pago combinado" busy={mutation.isPending} onClose={onClose}><form onSubmit={submit} className="space-y-5">
     <h2 className="text-3xl font-semibold"><Icon name="cash" />Pago combinado</h2><p className="break-words text-xl">{order.reference || 'Sin referencia'}</p>
@@ -25,3 +26,4 @@ export default function SplitPaymentDialog({ order, mutation, onClose, onSaved }
     <div className="order-actions"><button className="libreta-button" disabled={mutation.isPending}><Icon name="check" />{mutation.isPending ? 'Registrando…' : 'Registrar pago'}</button><button type="button" className="libreta-secondary" disabled={mutation.isPending} onClick={onClose}>Cancelar</button></div>
   </form></CenteredDialog>;
 }
+

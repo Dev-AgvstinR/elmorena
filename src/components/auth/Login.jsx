@@ -25,7 +25,8 @@ export default function Login() {
         const data = await signUp(credentials);
         if (!data.session) {
           form.reset();
-          setNotice('Revisá tu correo, incluida la carpeta de spam. Si recibís un enlace de confirmación, abrilo para activar tu cuenta. Si ya tenías cuenta, podés ingresar.');
+          setRegister(false);
+          setNotice('Ingresá con tu correo y contraseña para continuar.');
         }
       } else {
         await signIn(credentials);

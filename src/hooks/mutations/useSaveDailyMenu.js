@@ -5,10 +5,12 @@ import { queryKeys } from '../queryKeys';
 export function useSaveDailyMenu(userId) {
   const client = useQueryClient();
   return useMutation({
-    mutationFn: saveDailyMenu, retry: false,
+    mutationFn: saveDailyMenu, retry: false, meta: { successMessage: 'Menú de hoy guardado.' },
+    onError: () => client.invalidateQueries({ queryKey: queryKeys.menus(userId) }),
     onSuccess: (rows, variables) => {
       client.setQueryData(queryKeys.menu(userId, variables.date), rows);
       return client.invalidateQueries({ queryKey: queryKeys.menu(userId, variables.date) });
     },
   });
 }
+

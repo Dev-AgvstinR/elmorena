@@ -1,17 +1,9 @@
-import { useSales } from "../../hooks/useSales";
-import { summarizePaidSales } from "../../utils/sales";
-import Icon from "../common/Icon";
-
-const money = new Intl.NumberFormat("es-AR", {
-  style: "currency",
-  currency: "ARS",
-  maximumFractionDigits: 2,
-});
-const count = new Intl.NumberFormat("es-AR");
+import { useSalesSummary } from "../../hooks/useSales";
+import SalesSummaryCards from "./SalesSummaryCards";
 
 export default function SalesStats({ userId, date, actions }) {
-  const query = useSales(userId, date);
-  const stats = summarizePaidSales(query.data?.paid ?? []);
+  const query = useSalesSummary(userId, date);
+  const stats = query.data ?? { plates: 0, beverages: 0, totalCents: 0, cashCents: 0, transferCents: 0 };
   const ready = query.isSuccess;
   return (
     <section aria-labelledby="stats-title" className="section-card">
@@ -21,35 +13,7 @@ export default function SalesStats({ userId, date, actions }) {
       </h2>
       {actions}
       </div>
-      <dl className="sales-summary-grid grid gap-4 sm:grid-cols-3" aria-busy={query.isPending}>
-        <div className="rounded-3xl border border-[#446744] bg-[#557c55] p-6 text-white">
-          <span className="libreta-icon-badge is-light">
-            <Icon name="dish" />
-          </span>
-          <dt className="text-lg font-medium">Platos vendidos</dt>
-          <dd className="mt-2 break-words text-3xl font-semibold tabular-nums">
-            {ready ? count.format(stats.plates) : "—"}
-          </dd>
-        </div>
-        <div className="rounded-3xl border border-stone-200 bg-white p-6">
-          <span className="libreta-icon-badge">
-            <Icon name="cash" />
-          </span>
-          <dt className="text-lg text-stone-600">En efectivo</dt>
-          <dd className="mt-2 break-words text-3xl font-semibold tabular-nums">
-            {ready ? money.format(stats.cashCents / 100) : "—"}
-          </dd>
-        </div>
-        <div className="rounded-3xl border border-stone-200 bg-white p-6">
-          <span className="libreta-icon-badge">
-            <Icon name="transfer" />
-          </span>
-          <dt className="text-lg text-stone-600">Por transferencia</dt>
-          <dd className="mt-2 break-words text-3xl font-semibold tabular-nums">
-            {ready ? money.format(stats.transferCents / 100) : "—"}
-          </dd>
-        </div>
-      </dl>
+      <SalesSummaryCards stats={stats} ready={ready} busy={query.isPending} />
       {query.isPending && (
         <p role="status" className="mt-4 text-lg">
           Cargando estadísticas…
@@ -86,3 +50,4 @@ export default function SalesStats({ userId, date, actions }) {
     </section>
   );
 }
+

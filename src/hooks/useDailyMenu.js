@@ -21,6 +21,7 @@ export function useMenuDate() {
 }
 
 export function useDailyMenu(userId, date) {
-  return useQuery({ queryKey: queryKeys.menu(userId, date), queryFn: () => getDailyMenu(date), enabled: Boolean(userId) });
+  return useQuery({ queryKey: queryKeys.menu(userId, date), queryFn: () => getDailyMenu(date), enabled: Boolean(userId), refetchInterval: 30000 });
 }
+
 

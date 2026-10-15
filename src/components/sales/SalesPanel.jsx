@@ -12,6 +12,17 @@ const money = new Intl.NumberFormat("es-AR", {
   style: "currency",
   currency: "ARS",
 });
+function uniqueSales(data) {
+  return [...new Map((data?.pages.flatMap((page) => page.items) ?? []).map((sale) => [sale.id, sale])).values()];
+}
+
+function PageStatus({ query }) {
+  return <div className="mt-4">
+    {query.isPending && <p role="status">Cargando pedidos…</p>}
+    {query.isError && <div role="alert"><p className="text-red-800">No se pudieron cargar los pedidos. {query.error.message}</p><button type="button" className="libreta-secondary mt-3" onClick={() => query.refetch()}>Volver a intentar</button></div>}
+    {query.hasNextPage && <button type="button" className="libreta-secondary" disabled={query.isFetching} onClick={() => query.fetchNextPage()}>{query.isFetchingNextPage ? 'Cargando…' : 'Cargar más pedidos'}</button>}
+  </div>;
+}
 export default function SalesPanel({
   userId,
   date,
@@ -19,7 +30,8 @@ export default function SalesPanel({
   orderOpen,
   onCloseOrder,
 }) {
-  const query = useSales(userId, date);
+  const pendingQuery = useSales(userId, date, 'pendiente');
+  const paidQuery = useSales(userId, date, 'pagado');
   const beverages = useBeverages(userId);
   const { create, pay, edit, remove } = useSalesMutations(userId);
   const [editing, setEditing] = useState(null);
@@ -71,8 +83,8 @@ export default function SalesPanel({
       setError(`No se pudo cobrar. ${failure.message}`);
     }
   }
-  const pending = groupOrders(query.data?.pending ?? []);
-  const paid = groupOrders(query.data?.paid ?? []);
+  const pending = groupOrders(uniqueSales(pendingQuery.data));
+  const paid = groupOrders(uniqueSales(paidQuery.data));
   function renderOrder(order, isPaid) {
     return (
       <li
@@ -190,25 +202,9 @@ export default function SalesPanel({
       <p role="status" className="mb-5 text-lg text-green-900">
         {notice}
       </p>
-      {query.isPending && <p role="status">Cargando pedidos…</p>}
-      {query.isError && (
-        <div role="alert" className="mb-5">
-          <p className="text-lg text-red-800">
-            No se pudieron cargar los pedidos. {query.error.message}
-          </p>
-          <button
-            type="button"
-            className="libreta-secondary mt-3"
-            disabled={query.isFetching}
-            onClick={() => query.refetch()}
-          >
-            Volver a intentar
-          </button>
-        </div>
-      )}
       <section aria-labelledby="pending-sales-title" className="section-card">
       <h2 id="pending-sales-title" className="mb-4 text-2xl font-semibold"><Icon name="pending" />Pendientes de pago</h2>
-      {query.isSuccess && !pending.length && (
+      {pendingQuery.isSuccess && !pending.length && (
         <p className="mb-6 text-lg text-stone-600">
           No hay pedidos pendientes.
         </p>
@@ -216,10 +212,11 @@ export default function SalesPanel({
       <ul className="space-y-4">
         {pending.map((order) => renderOrder(order, false))}
       </ul>
+      <PageStatus query={pendingQuery} />
       </section>
       <section aria-labelledby="paid-sales-title" className="section-card">
       <h2 id="paid-sales-title" className="mb-4 text-2xl font-semibold"><Icon name="check" />Pagados de hoy</h2>
-      {query.isSuccess && !paid.length && (
+      {paidQuery.isSuccess && !paid.length && (
         <p className="text-lg text-stone-600">
           Todavía no hay pagos registrados hoy.
         </p>
@@ -227,7 +224,9 @@ export default function SalesPanel({
       <ul className="space-y-4">
         {paid.map((order) => renderOrder(order, true))}
       </ul>
+      <PageStatus query={paidQuery} />
       </section>
     </div>
   );
 }
+

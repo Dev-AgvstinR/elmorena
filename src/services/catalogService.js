@@ -1,10 +1,10 @@
 import { supabase } from './supabaseClient';
-import { requireUser } from './authService';
+import { requireLocal } from './localService';
 import { defaultDishes } from '../data/defaultDishes';
 import { catalogDishId, normalizeDishName } from '../utils/catalog';
 
 export async function importDefaultDishes(onProgress = () => {}) {
-  const user = await requireUser();
+  const user = await requireLocal();
   const existing = await supabase.from('dishes').select('*').eq('user_id', user.id);
   if (existing.error) throw existing.error;
   const byName = new Map(existing.data.map((dish) => [normalizeDishName(dish.name), dish]));
@@ -39,3 +39,4 @@ export async function importDefaultDishes(onProgress = () => {}) {
   }
   return summary;
 }
+

@@ -23,6 +23,27 @@ export function summarizePaidSales(sales) {
   }, { plates: 0, cashCents: 0, transferCents: 0 });
 }
 
+export function summarizeDailySales(sales = []) {
+  const paid = sales.filter((sale) => sale.status === 'vigente' && sale.payment_status === 'pagado');
+  const products = new Map();
+  for (const sale of paid) {
+    const type = sale.beverage_id ? 'beverage' : 'dish';
+    const unitPriceCents = Math.round(Number(sale.unit_price) * 100);
+    const name = orderItemName(sale);
+    const key = JSON.stringify([type, sale.beverage_id || sale.dish_id, name, unitPriceCents]);
+    if (!products.has(key)) products.set(key, { key, type, name, unitPriceCents, quantity: 0, totalCents: 0 });
+    const product = products.get(key);
+    product.quantity += Number(sale.quantity);
+    product.totalCents += Math.round(Number(sale.total) * 100);
+  }
+  return {
+    ...summarizePaidSales(paid),
+    beverages: paid.reduce((total, sale) => total + (sale.beverage_id ? Number(sale.quantity) : 0), 0),
+    totalCents: paid.reduce((total, sale) => total + Math.round(Number(sale.total) * 100), 0),
+    products: [...products.values()].sort((a, b) => a.name.localeCompare(b.name, 'es')),
+  };
+}
+
 export function validateCart({ items, reference }) {
   if (!items.length || items.length > 100) throw new Error('Agregá entre 1 y 100 productos distintos.');
   const checked = items.map((item) => {

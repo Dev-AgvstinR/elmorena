@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useDishes } from "../hooks/useDishes";
 import { useDailyMenu, useMenuDate } from "../hooks/useDailyMenu";
-import { useCloseDay, useDayClosure } from "../hooks/useHistory";
+import { useCloseDay, useDayClosure, useHistoryDay } from "../hooks/useHistory";
 import DishCard from "../components/menu/DishCard";
 import DailyMenuModal from "../components/menu/DailyMenuModal";
 import SalesStats from "../components/sales/SalesStats";
@@ -9,6 +9,8 @@ import SalesPanel from "../components/sales/SalesPanel";
 import Icon from "../components/common/Icon";
 import CenteredDialog from "../components/common/CenteredDialog";
 import { useBeverages } from '../hooks/useStock';
+import DailySummary from '../components/sales/DailySummary';
+import DailyPaymentHistory from '../components/sales/DailyPaymentHistory';
 
 export default function Home({ userId }) {
   const dishes = useDishes(userId);
@@ -16,6 +18,7 @@ export default function Home({ userId }) {
   const date = useMenuDate();
   const menu = useDailyMenu(userId, date);
   const closure = useDayClosure(userId, date);
+  const closedDetails = useHistoryDay(userId, closure.data?.id);
   const finish = useCloseDay(userId);
   const [dismissedDate, setDismissedDate] = useState(null);
   const [editingDate, setEditingDate] = useState(null);
@@ -77,8 +80,7 @@ export default function Home({ userId }) {
         {closure.isError && (
           <div role="alert" className="mb-6">
             <p className="text-lg text-red-800">
-              No se pudo consultar el cierre del día. Ejecutá
-              cierre-historial.sql en Supabase si todavía no lo hiciste.
+              No se pudo consultar el cierre del día. {closure.error.message}
             </p>
             <button
               className="libreta-secondary mt-3"
@@ -98,6 +100,9 @@ export default function Home({ userId }) {
               El menú y los pedidos pagados quedaron guardados. Mañana podrás
               armar un nuevo menú.
             </p>
+            {closedDetails.isPending && <p role="status" className="mt-5">Cargando resumen…</p>}
+            {closedDetails.isError && <div role="alert" className="mt-5"><p>No se pudo cargar el resumen.</p><button type="button" className="libreta-secondary mt-3" onClick={() => closedDetails.refetch()}>Volver a intentar</button></div>}
+            {closedDetails.data && <><DailySummary sales={closedDetails.data.sales_snapshot} /><DailyPaymentHistory sales={closedDetails.data.sales_snapshot} /></>}
           </section>
         )}
 

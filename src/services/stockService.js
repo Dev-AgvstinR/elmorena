@@ -1,16 +1,16 @@
 import { supabase } from './supabaseClient';
-import { requireUser } from './authService';
+import { requireLocal } from './localService';
 import { validateBeverage } from '../utils/stock';
 
 export async function getBeverages() {
-  const user = await requireUser();
+  const user = await requireLocal();
   const { data, error } = await supabase.from('beverages').select('*').eq('user_id', user.id).eq('is_active', true).order('name');
   if (error) throw error;
   return data;
 }
 export async function saveBeverage({ id, editing, ...input }) {
   const values = validateBeverage(input);
-  const user = await requireUser();
+  const user = await requireLocal();
   const request = editing
     ? supabase.from('beverages').update({ name: values.name, price: values.price }).eq('id', id).eq('user_id', user.id)
     : supabase.from('beverages').insert({ ...values, id, user_id: user.id });
@@ -32,8 +32,9 @@ export async function adjustBeverageStock({ id, delta }) {
   return data;
 }
 export async function hideBeverage(id) {
-  const user = await requireUser();
+  const user = await requireLocal();
   const { data, error } = await supabase.from('beverages').update({ is_active: false }).eq('id', id).eq('user_id', user.id).select().single();
   if (error) throw error;
   return data;
 }
+

@@ -9,8 +9,9 @@ export function useDishMutations(userId) {
     client.invalidateQueries({ queryKey: queryKeys.menus(userId) }),
     client.invalidateQueries({ queryKey: queryKeys.sales(userId) }),
   ]);
-  const create = useMutation({ mutationFn: createDish, onSuccess, retry: false });
-  const update = useMutation({ mutationFn: ({ id, ...values }) => updateDish(id, values), onSuccess, retry: false });
-  const archive = useMutation({ mutationFn: archiveDish, onSuccess, retry: false });
+  const create = useMutation({ mutationFn: createDish, meta: { successMessage: 'Comida guardada.' }, onSuccess, retry: false });
+  const update = useMutation({ mutationFn: ({ id, ...values }) => updateDish(id, values), meta: { successMessage: 'Comida actualizada.' }, onSuccess, retry: false });
+  const archive = useMutation({ mutationFn: archiveDish, meta: { successMessage: 'Comida oculta.' }, onSuccess, retry: false });
   return { create, update, archive };
 }
+

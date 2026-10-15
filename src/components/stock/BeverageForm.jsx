@@ -1,3 +1,4 @@
+import { notify } from '../../utils/notifications';
 import { useRef, useState } from 'react';
 import Icon from '../common/Icon';
 
@@ -12,7 +13,7 @@ export default function BeverageForm({ beverage, mutation, onClose, onSaved }) {
     try {
       await mutation.mutateAsync({ id: id.current, editing: Boolean(beverage), name: form.get('name'), price: form.get('price'), quantity: beverage ? beverage.stock_quantity : form.get('quantity') });
       onSaved('Bebida guardada.');
-    } catch (failure) { setError(failure.message); }
+    } catch (failure) { notify.error(failure.message); setError(failure.message); }
   }
   return <form onSubmit={submit} className="space-y-5"><h2 className="text-3xl font-semibold"><Icon name="drink" />{beverage ? 'Editar bebida' : 'Agregar bebida'}</h2>
     <fieldset disabled={mutation.isPending} className="space-y-5">
@@ -24,3 +25,4 @@ export default function BeverageForm({ beverage, mutation, onClose, onSaved }) {
     <div className="flex flex-wrap gap-3"><button disabled={mutation.isPending} className="libreta-button"><Icon name="save" />{mutation.isPending ? 'Guardando…' : 'Guardar bebida'}</button><button type="button" disabled={mutation.isPending} className="libreta-secondary" onClick={onClose}>Cancelar</button></div>
   </form>;
 }
+

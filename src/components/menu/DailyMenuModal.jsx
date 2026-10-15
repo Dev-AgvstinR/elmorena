@@ -12,6 +12,7 @@ export default function DailyMenuModal({
   onSaved,
 }) {
   const dialogRef = useRef(null);
+  const [expectedIds] = useState(() => rows.filter((row) => row.is_available).map((row) => row.dish_id));
   const [selected, setSelected] = useState(() =>
     rows.filter((row) => row.is_available).map((row) => row.dish_id),
   );
@@ -44,7 +45,7 @@ export default function DailyMenuModal({
     event.preventDefault();
     if (save.isPending) return;
     try {
-      await save.mutateAsync({ date, dishIds: validIds });
+      await save.mutateAsync({ date, dishIds: validIds, expectedIds });
       onSaved();
     } catch {
       /* Se conserva la selección y se muestra el error para reintentar. */
@@ -120,6 +121,7 @@ export default function DailyMenuModal({
             >
               {save.isPending ? "Guardando…" : "Guardar menú de hoy"}
             </button>
+            <button type="button" className="libreta-secondary w-full" disabled={save.isPending} onClick={onClose}>Cancelar</button>
           </form>
           <button
             type="button"

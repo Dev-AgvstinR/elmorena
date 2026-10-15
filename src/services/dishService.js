@@ -1,5 +1,5 @@
 import { supabase } from './supabaseClient';
-import { requireUser } from './authService';
+import { requireLocal } from './localService';
 
 const BUCKET = 'dish-images';
 const types = { 'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp' };
@@ -46,7 +46,7 @@ export function getDishImageUrl(path) {
 }
 
 export async function getDishes() {
-  const user = await requireUser();
+  const user = await requireLocal();
   const { data, error } = await supabase.from('dishes').select('*')
     .eq('user_id', user.id).eq('is_active', true).order('name');
   if (error) throw error;
@@ -55,7 +55,7 @@ export async function getDishes() {
 
 export async function createDish({ name, price, photo = null }) {
   const values = validateDish({ name, price });
-  const user = await requireUser();
+  const user = await requireLocal();
   const path = photo ? await uploadPhoto(photo, user.id) : null;
   const { data, error } = await supabase.from('dishes').insert({
     ...values, user_id: user.id, image_path: path,
@@ -67,7 +67,7 @@ export async function createDish({ name, price, photo = null }) {
 // photo omitida: conserva la foto; photo nueva: la reemplaza.
 export async function updateDish(id, { name, price, photo = null }) {
   const values = validateDish({ name, price });
-  const user = await requireUser();
+  const user = await requireLocal();
   const path = photo ? await uploadPhoto(photo, user.id) : null;
   const { data, error } = await supabase.from('dishes').update({
     ...values, ...(path ? { image_path: path } : {}),
@@ -79,9 +79,10 @@ export async function updateDish(id, { name, price, photo = null }) {
 
 // Baja lógica: mantiene las referencias desde ventas y respeta las políticas existentes.
 export async function archiveDish(id) {
-  const user = await requireUser();
+  const user = await requireLocal();
   const { data, error } = await supabase.from('dishes').update({ is_active: false })
     .eq('id', id).eq('user_id', user.id).select().single();
   if (error) throw error;
   return data;
 }
+
