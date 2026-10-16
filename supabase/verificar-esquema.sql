@@ -12,5 +12,8 @@ from (values
   ('Local compartido',to_regprocedure('public.local_owner_id()') is not null,'local-compartido.sql'),
   ('Resumen completo',to_regprocedure('public.sales_summary(date)') is not null,'mejoras-operacion.sql'),
   ('Páginas de pedidos',to_regprocedure('public.sales_page(date,text,integer,integer)') is not null,'mejoras-operacion.sql'),
-  ('Menú compartido',to_regprocedure('public.save_daily_menu(date,uuid[],uuid[])') is not null,'mejoras-operacion.sql')
+  ('Menú compartido',to_regprocedure('public.save_daily_menu(date,uuid[],uuid[])') is not null,'mejoras-operacion.sql'),
+  ('Gastos diarios',to_regclass('public.daily_expenses') is not null,'gastos-diarios.sql'),
+  ('Registrar gasto',to_regprocedure('public.add_daily_expense(date,text,numeric,text)') is not null,'gastos-diarios.sql'),
+  ('Eliminar gasto',to_regprocedure('public.delete_daily_expense(uuid)') is not null,'gastos-diarios.sql')
 ) as estado(componente,instalado,archivo);

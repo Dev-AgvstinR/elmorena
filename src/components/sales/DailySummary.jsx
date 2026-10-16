@@ -1,13 +1,17 @@
 import { summarizeDailySales } from '../../utils/sales';
 import SalesSummaryCards from './SalesSummaryCards';
+import { summarizeExpenses } from '../../utils/expenses';
+import ExpenseList from './ExpenseList';
 
 const money = new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' });
 
-export default function DailySummary({ sales }) {
+export default function DailySummary({ sales, expenses = [] }) {
   const summary = summarizeDailySales(sales);
+  const expenseTotals = summarizeExpenses(expenses);
   return <section className="mt-6" aria-label="Resumen del día">
     <h2 className="mb-5 text-2xl font-semibold">Resumen del día</h2>
-    <SalesSummaryCards stats={summary} />
+    <SalesSummaryCards stats={summary} expenses={expenseTotals} />
+    <ExpenseList expenses={expenses} readOnly />
     <h2 className="mb-4 mt-8 text-2xl font-semibold">Detalle de productos vendidos</h2>
     {['dish', 'beverage'].map((type) => {
       const products = summary.products.filter((product) => product.type === type);

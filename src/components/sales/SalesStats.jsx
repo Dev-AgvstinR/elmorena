@@ -1,9 +1,14 @@
 import { useSalesSummary } from "../../hooks/useSales";
 import SalesSummaryCards from "./SalesSummaryCards";
+import { useDailyExpenses } from '../../hooks/useExpenses';
+import { summarizeExpenses } from '../../utils/expenses';
+import ExpenseList from './ExpenseList';
 
 export default function SalesStats({ userId, date, actions }) {
   const query = useSalesSummary(userId, date);
+  const expenseQuery = useDailyExpenses(userId, date);
   const stats = query.data ?? { plates: 0, beverages: 0, totalCents: 0, cashCents: 0, transferCents: 0 };
+  const expenses = expenseQuery.isSuccess ? summarizeExpenses(expenseQuery.data) : undefined;
   const ready = query.isSuccess;
   return (
     <section aria-labelledby="stats-title" className="section-card">
@@ -13,8 +18,8 @@ export default function SalesStats({ userId, date, actions }) {
       </h2>
       {actions}
       </div>
-      <SalesSummaryCards stats={stats} ready={ready} busy={query.isPending} />
-      {query.isPending && (
+      <SalesSummaryCards stats={stats} expenses={expenses} ready={ready} busy={query.isPending || expenseQuery.isPending} />
+      {(query.isPending || expenseQuery.isPending) && (
         <p role="status" className="mt-4 text-lg">
           Cargando estadísticas…
         </p>
@@ -40,6 +45,11 @@ export default function SalesStats({ userId, date, actions }) {
           </button>
         </div>
       )}
+      {expenseQuery.isError && <div role="alert" className="mt-4 rounded-2xl border border-red-200 bg-white p-5">
+        <p className="text-lg text-red-800">No se pudieron cargar los gastos. {expenseQuery.error.message}</p>
+        <button type="button" className="libreta-secondary mt-4" disabled={expenseQuery.isFetching} onClick={() => expenseQuery.refetch()}>Volver a intentar</button>
+      </div>}
+      {expenseQuery.isSuccess && <ExpenseList expenses={expenseQuery.data} userId={userId} date={date} />}
     </section>
   );
 }

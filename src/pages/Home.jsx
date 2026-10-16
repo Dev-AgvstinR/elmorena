@@ -11,6 +11,7 @@ import CenteredDialog from "../components/common/CenteredDialog";
 import { useBeverages } from '../hooks/useStock';
 import DailySummary from '../components/sales/DailySummary';
 import DailyPaymentHistory from '../components/sales/DailyPaymentHistory';
+import ExpenseDialog from '../components/sales/ExpenseDialog';
 
 export default function Home({ userId }) {
   const dishes = useDishes(userId);
@@ -23,6 +24,7 @@ export default function Home({ userId }) {
   const [dismissedDate, setDismissedDate] = useState(null);
   const [editingDate, setEditingDate] = useState(null);
   const [orderDate, setOrderDate] = useState(null);
+  const [expenseDate, setExpenseDate] = useState(null);
   const [notice, setNotice] = useState("");
   const [confirmDate, setConfirmDate] = useState(null);
 
@@ -97,12 +99,12 @@ export default function Home({ userId }) {
               Día terminado
             </h2>
             <p className="mt-4 text-lg">
-              El menú y los pedidos pagados quedaron guardados. Mañana podrás
+              El menú, los pedidos pagados y los gastos quedaron guardados. Mañana podrás
               armar un nuevo menú.
             </p>
             {closedDetails.isPending && <p role="status" className="mt-5">Cargando resumen…</p>}
             {closedDetails.isError && <div role="alert" className="mt-5"><p>No se pudo cargar el resumen.</p><button type="button" className="libreta-secondary mt-3" onClick={() => closedDetails.refetch()}>Volver a intentar</button></div>}
-            {closedDetails.data && <><DailyPaymentHistory sales={closedDetails.data.sales_snapshot} /><DailySummary sales={closedDetails.data.sales_snapshot} /></>}
+            {closedDetails.data && <><DailyPaymentHistory sales={closedDetails.data.sales_snapshot} /><DailySummary sales={closedDetails.data.sales_snapshot} expenses={closedDetails.data.expenses_snapshot ?? []} /></>}
           </section>
         )}
 
@@ -130,21 +132,27 @@ export default function Home({ userId }) {
               />
             )}
 
-            <button
-              type="button"
-              className="libreta-button mb-6"
-              disabled={
-                !menu.isSuccess ||
-                !dishes.isSuccess ||
-                (!todayDishes.length && !beverages.data?.some((beverage) => beverage.stock_quantity > 0)) ||
-                showMenuModal ||
-                finish.isPending
-              }
-              onClick={() => setOrderDate(date)}
-            >
-              <Icon name="order" />
-              Realizar pedido
-            </button>
+            <div className="day-actions mb-6 flex flex-wrap items-center gap-3">
+              <button
+                type="button"
+                className="libreta-button"
+                disabled={
+                  !menu.isSuccess ||
+                  !dishes.isSuccess ||
+                  (!todayDishes.length && !beverages.data?.some((beverage) => beverage.stock_quantity > 0)) ||
+                  showMenuModal ||
+                  finish.isPending
+                }
+                onClick={() => setOrderDate(date)}
+              >
+                <Icon name="order" />
+                Realizar pedido
+              </button>
+              <button type="button" className="libreta-secondary day-expense-button" disabled={showMenuModal || finish.isPending} onClick={() => setExpenseDate(date)}>
+                <Icon name="cash" /> Gasto
+              </button>
+            </div>
+            {expenseDate === date && <ExpenseDialog userId={userId} date={date} onClose={() => setExpenseDate(null)} />}
             {confirmDate === date && (
               <CenteredDialog
                 title="Confirmar cierre del día"
@@ -158,7 +166,7 @@ export default function Home({ userId }) {
                   ¿Estás seguro de terminar el día?
                 </h2>
                 <p className="my-5 text-lg text-stone-600">
-                  El menú y los pedidos pagados se guardarán en Historial y se
+                  El menú, los pedidos pagados y los gastos se guardarán en Historial y se
                   limpiará el inicio. No podrás agregar pedidos hasta mañana.
                 </p>
                 <p className="mb-6 text-lg">

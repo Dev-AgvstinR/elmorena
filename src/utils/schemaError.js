@@ -3,6 +3,8 @@ const setupFile = {
   sales_summary: 'mejoras-operacion.sql',
   sales_page: 'mejoras-operacion.sql',
   save_daily_menu: 'mejoras-operacion.sql',
+  add_daily_expense: 'gastos-diarios.sql',
+  delete_daily_expense: 'gastos-diarios.sql',
 };
 
 export function explainSchemaError(error, functionName) {
@@ -17,7 +19,9 @@ export function explainSchemaError(error, functionName) {
     return explained;
   }
   if (error?.code === 'PGRST205' || error?.code === '42P01') {
-    const explained = new Error('Falta una tabla en Supabase. Revisá la instalación del esquema del proyecto.', { cause: error });
+    const explained = new Error(functionName === 'daily_expenses'
+      ? 'Falta actualizar Supabase. Ejecutá gastos-diarios.sql en SQL Editor y recargá la app.'
+      : 'Falta una tabla en Supabase. Revisá la instalación del esquema del proyecto.', { cause: error });
     explained.code = error.code;
     return explained;
   }

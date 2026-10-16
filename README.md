@@ -21,7 +21,9 @@ pública. Genera `dist/manifest.webmanifest`, `dist/sw.js` e íconos PNG.
 1. En Supabase, ejecutar `supabase/verificar-esquema.sql`. Si falta «Local
    compartido», ejecutar `supabase/local-compartido.sql`. Después ejecutar
    `supabase/mejoras-operacion.sql`. Esta última función instala
-   `save_daily_menu`, `sales_summary` y `sales_page`. Volver a ejecutar la
+   `save_daily_menu`, `sales_summary` y `sales_page`. Ejecutar después
+   `supabase/gastos-diarios.sql` para habilitar el botón de gastos y guardar su
+   detalle en cada cierre. Volver a ejecutar la
    verificación: todas las filas deben decir `listo`.
 2. Conectar este repositorio en Vercel como proyecto Vite. Usar `npm ci`
    para instalar, `npm run build` para compilar y `dist` como directorio de
@@ -45,6 +47,13 @@ inicio». En Safari/iPhone se usa Compartir → «Agregar a pantalla de inicio»
 La interfaz se puede abrir sin red gracias a la caché local, pero no se pueden
 consultar ni guardar ventas sin conexión. La app muestra un aviso cuando se
 pierde la conexión y ofrece aplicar las nuevas versiones cuando estén listas.
+
+Cada gasto se registra con concepto, importe y medio de pago. Se descuenta del
+saldo del día sin modificar el total de ventas; el cierre conserva el detalle.
+Si el local ya está usando la app, ejecutar `gastos-diarios.sql` en un momento
+de poca actividad y publicar la versión nueva después. La migración agrega una
+tabla y una columna; no reescribe ventas ni cierres existentes. Puede bloquear
+brevemente consultas al historial mientras Supabase aplica el cambio.
 
 Si Vercel falla al compilar por variables ausentes, revisar que estén definidas
 en el entorno Production y volver a desplegar. Si la app muestra que falta

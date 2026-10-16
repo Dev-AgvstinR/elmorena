@@ -13,7 +13,9 @@ su propio correo, contraseña y sesión.
 3. Ejecutar `mejoras-operacion.sql` completo. Se puede repetir si ya estaba
    instalado. Incluye resumen sin límite de filas, paginación de pedidos y
    control de cambios simultáneos en el menú.
-4. Recargar la aplicación en las dos computadoras.
+4. Ejecutar `gastos-diarios.sql` para compartir los gastos, descontarlos del
+   saldo y archivarlos al cerrar el día.
+5. Recargar la aplicación en las dos computadoras.
 
 La migración es transaccional: si falla, no queda aplicada a medias. Guarda
 una copia privada de las cinco tablas en `local_migration_backup`, conserva

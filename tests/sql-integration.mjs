@@ -34,6 +34,10 @@ try {
   await runFile('local-compartido.sql');
   await runFile('mejoras-operacion.sql');
   await runFile('mejoras-operacion.sql');
+  const closureFunctionBefore=(await db.query("select pg_get_functiondef('public.prepare_day_closure()'::regprocedure) source")).rows[0].source;
+  await runFile('gastos-diarios.sql');
+  await runFile('gastos-diarios.sql');
+  assert.equal((await db.query("select pg_get_functiondef('public.prepare_day_closure()'::regprocedure) source")).rows[0].source,closureFunctionBefore);
   const schema = (await db.query(await read('../supabase/verificar-esquema.sql'))).rows;
   assert.ok(schema.every((component) => component.estado === 'listo'), JSON.stringify(schema));
   const today=(await db.query("select (now() at time zone 'America/Argentina/Buenos_Aires')::date::text d")).rows[0].d;
@@ -58,6 +62,15 @@ try {
   assert.equal(stats.beverages,1);
   assert.equal(stats.totalCents,10072500);
   assert.equal(stats.cashCents+stats.transferCents,stats.totalCents);
+  const expense=(await db.query("select (add_daily_expense($1,'Hielo',125.50,'efectivo')).id id",[today])).rows[0].id;
+  await asUser(a);
+  assert.equal((await db.query('select count(*)::int n from daily_expenses')).rows[0].n,1);
+  await db.query('select delete_daily_expense($1)',[expense]);
+  await db.query("select add_daily_expense($1,'Hielo',125.50,'efectivo')",[today]);
+  await db.query("select add_daily_expense($1,'Envío',40,'transferencia')",[today]);
+  await assert.rejects(() => db.query("select add_daily_expense($1,'Inválido',-1,'efectivo')",[today]),/importe positivo/);
+  await assert.rejects(() => db.query("insert into daily_expenses(business_date,description,amount,payment_method) values($1,'Directo',10,'efectivo')",[today]),/permission denied/);
+  await asUser(b);
   let offset=0,lines=[];
   for (;;) {
     const page=(await db.query("select sales_page($1,'pagado',$2,20) result",[today,offset])).rows[0].result;
@@ -71,6 +84,11 @@ try {
   await db.query('select close_day($1)',[today]);
   await asUser(a);
   assert.equal((await db.query('select jsonb_array_length(sales_snapshot)::int n from day_closures where business_date=$1',[today])).rows[0].n,1007);
+  const savedExpenses=(await db.query('select expenses_snapshot from day_closures where business_date=$1',[today])).rows[0].expenses_snapshot;
+  assert.equal(savedExpenses.length,2);
+  assert.equal(savedExpenses.reduce((sum,item)=>sum+Number(item.amount),0),165.5);
+  await assert.rejects(() => db.query("select add_daily_expense($1,'Más',10,'efectivo')",[today]),/día ya terminó/);
+  await assert.rejects(() => db.query('select delete_daily_expense($1)',[savedExpenses[0].id]),/día ya terminó/);
   await assert.rejects(()=>db.query('select save_daily_menu($1,$2,$3)',[today,[dish],[dish,dish2]]),/día ya terminó/);
   // Simula el estado generado por la migración antigua y comprueba recuperación.
   await db.exec('reset role; alter table sales disable trigger guard_sales_closed');
@@ -86,7 +104,8 @@ try {
   await db.query('select close_day($1)',[today]);
   await db.exec('reset role; set role anon');
   await assert.rejects(()=>db.query('select sales_summary($1)',[today]),/permission denied/);
-  console.log('OK: migraciones, guard de pendientes, dos cuentas/RLS, conflicto de menú, pago combinado/stock, 1007 líneas paginadas, resumen y cierre compartido.');
+  await assert.rejects(()=>db.query("select add_daily_expense($1,'Otro',10,'efectivo')",[today]),/permission denied/);
+  console.log('OK: migraciones, dos cuentas/RLS, gastos y cierre, pagos/stock, 1007 líneas paginadas.');
 } finally {
   await db.close();
 }
