@@ -30,13 +30,6 @@ export default function SalesStats({ userId, date, actions }) {
           <p className="mt-2 break-words text-stone-700">
             {query.error.code}: {query.error.message}
           </p>
-          {(query.error.code === "42703" ||
-            query.error.code === "PGRST204") && (
-            <p className="mt-3 text-lg">
-              Falta actualizar la tabla de ventas en Supabase. Ejecutá el
-              archivo ventas-pendientes.sql en SQL Editor.
-            </p>
-          )}
           <button
             type="button"
             className="libreta-secondary mt-4"

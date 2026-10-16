@@ -1,5 +1,6 @@
 import { supabase } from './supabaseClient';
 import { getSession } from './authService';
+import { explainSchemaError } from '../utils/schemaError';
 
 let cachedUserId;
 let localRequest;
@@ -19,9 +20,7 @@ export async function requireLocal() {
   }
   if (!localRequest) {
     const request = supabase.rpc('local_owner_id').then(({ data, error }) => {
-      if (error) throw new Error(error.code === 'PGRST202'
-        ? 'Falta configurar el local compartido. Ejecutá local-compartido.sql en Supabase.'
-        : 'No se pudo conectar con el local. Volvé a intentar.', { cause: error });
+      if (error) throw explainSchemaError(error, 'local_owner_id');
       if (!data) throw new Error('El local compartido todavía no está configurado.');
       return { id: data };
     });

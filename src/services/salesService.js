@@ -1,15 +1,16 @@
 import { supabase } from './supabaseClient';
 import { validateCart } from '../utils/sales';
+import { explainSchemaError } from '../utils/schemaError';
 
 export async function getSalesPage(date, state, offset = 0) {
   const { data, error } = await supabase.rpc('sales_page', { p_date: date, p_state: state, p_offset: offset, p_limit: 20 });
-  if (error) throw error;
+  if (error) throw explainSchemaError(error, 'sales_page');
   return { ...data, nextOffset: data.hasMore ? offset + 20 : undefined };
 }
 
 export async function getSalesSummary(date) {
   const { data, error } = await supabase.rpc('sales_summary', { p_date: date });
-  if (error) throw error;
+  if (error) throw explainSchemaError(error, 'sales_summary');
   return data;
 }
 

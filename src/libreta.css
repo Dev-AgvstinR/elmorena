@@ -1,4 +1,7 @@
 /* Agregar a los estilos existentes, sin reemplazar index.css. */
+.pwa-status { position: fixed; right: 16px; bottom: 16px; z-index: 30; max-width: min(430px, calc(100vw - 32px)); padding: 14px 18px; border: 1px solid #b0c9a9; border-radius: 16px; background: #edf6eb; color: #294b29; box-shadow: 0 8px 30px rgb(41 37 36 / 16%); }
+.pwa-status .libreta-secondary { min-height: 40px; padding: 7px 12px; font-size: 1rem; }
+@media (max-width: 767px) { .pwa-status { left: 16px; bottom: calc(110px + env(safe-area-inset-bottom, 0px)); } }
 .toast-stack { position: fixed; top: max(16px, env(safe-area-inset-top)); right: 16px; z-index: 100; display: grid; gap: 10px; width: min(380px, calc(100vw - 32px)); pointer-events: none; }
 .toast { display: flex; align-items: flex-start; gap: 10px; padding: 14px 12px 14px 16px; border: 1px solid; border-radius: 16px; box-shadow: 0 8px 30px rgb(41 37 36 / 18%); pointer-events: auto; font-size: .95rem; line-height: 1.45; }
 .toast p { flex: 1; min-width: 0; overflow-wrap: anywhere; }

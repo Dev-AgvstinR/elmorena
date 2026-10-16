@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import vm from 'node:vm';
+import { explainSchemaError } from '../src/utils/schemaError.js';
 
 const source = (await readFile(new URL('../src/services/localService.js', import.meta.url), 'utf8'))
   .replace(/^import .*;\r?\n/gm, '')
@@ -9,7 +10,7 @@ const source = (await readFile(new URL('../src/services/localService.js', import
 
 function localResolver(requireUser, rpc) {
   const getSession = async () => { const user = await requireUser(); return user ? { user } : null; };
-  const context = vm.createContext({ getSession, supabase: { rpc }, Error });
+  const context = vm.createContext({ getSession, supabase: { rpc }, explainSchemaError, Error });
   vm.runInContext(source, context);
   return context.requireLocal;
 }
@@ -51,8 +52,8 @@ test('lecturas simultáneas y posteriores comparten una sola consulta al local',
 test('un fallo temporal permite reintentar y salir elimina el caché', async () => {
   let account = { id: 'account' };
   let calls = 0;
-  const resolve = localResolver(async () => account, async () => ++calls === 1 ? { error: { code: 'NETWORK' } } : { data: 'local' });
-  await assert.rejects(resolve, /Volvé a intentar/);
+  const resolve = localResolver(async () => account, async () => ++calls === 1 ? { error: new Error('Falla temporal de red') } : { data: 'local' });
+  await assert.rejects(resolve, /Falla temporal de red/);
   assert.equal((await resolve()).id, 'local');
   account = null;
   await assert.rejects(resolve, /Iniciá sesión/);

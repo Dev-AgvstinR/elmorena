@@ -6,9 +6,14 @@ su propio correo, contraseña y sesión.
 
 ## Activación
 
-1. Con las migraciones anteriores de ventas, bebidas y pago combinado ya
-   instaladas, ejecutar `local-compartido.sql` completo en Supabase → SQL Editor.
-2. Recargar la aplicación en las dos computadoras.
+1. Ejecutar `verificar-esquema.sql` en Supabase → SQL Editor para identificar
+   los componentes que faltan. Las migraciones anteriores de ventas, bebidas
+   y pago combinado deben estar instaladas.
+2. Si falta «Local compartido», ejecutar `local-compartido.sql` completo.
+3. Ejecutar `mejoras-operacion.sql` completo. Se puede repetir si ya estaba
+   instalado. Incluye resumen sin límite de filas, paginación de pedidos y
+   control de cambios simultáneos en el menú.
+4. Recargar la aplicación en las dos computadoras.
 
 La migración es transaccional: si falla, no queda aplicada a medias. Guarda
 una copia privada de las cinco tablas en `local_migration_backup`, conserva
@@ -28,15 +33,17 @@ las reglas por usuario. Las cuentas nuevas comparten el local automáticamente.
 5. Resolver los pedidos pendientes y terminar el día: ambas deben ver el mismo
    resumen e historial y el día cerrado.
 
-Las pantallas activas consultan cambios cada diez segundos y al recuperar el
-foco. Los bloqueos de pedidos y de cierre se aplican al local común.
+Las pantallas activas consultan cambios periódicamente y al recuperar el foco.
+Los bloqueos de pedidos y de cierre se aplican al local común.
 
 ## Si ya había cierres en cuentas diferentes
 
 Se unen sus snapshots por fecha. Los cobros todavía sin archivar que correspondan
 a una fecha ya cerrada se incorporan al primer cierre disponible desde su fecha
-de pago. Los pendientes se conservan; si el día actual ya estaba cerrado en alguna
-cuenta, queda cerrado para todas y esos pendientes se resolverán al día siguiente.
+de pago. Si existe un cierre de hoy y pendientes en otra cuenta,
+`local-compartido.sql` se detiene sin modificar datos. Si se usó una versión
+anterior que dejó ese estado, `mejoras-operacion.sql` reabre el día y conserva
+el cierre previo en `closure_recovery_archive` antes de permitir cobrarlos.
 
 No se puede comprobar la migración contra el servidor desde este repositorio:
 requiere ejecutarla en el proyecto Supabase y verificar con las dos sesiones.

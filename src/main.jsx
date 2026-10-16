@@ -3,6 +3,7 @@ import ReactDOM from "react-dom/client";
 
 import { MutationCache, QueryCache, QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import Notifications from './components/common/Notifications';
+import PwaStatus from './components/common/PwaStatus';
 import { notify } from './utils/notifications';
 
 import App from "./App.jsx";
@@ -41,6 +42,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
     <QueryClientProvider client={queryClient}>
       <App />
       <Notifications />
+      <PwaStatus />
     </QueryClientProvider>
   </React.StrictMode>,
 );

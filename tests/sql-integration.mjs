@@ -34,6 +34,8 @@ try {
   await runFile('local-compartido.sql');
   await runFile('mejoras-operacion.sql');
   await runFile('mejoras-operacion.sql');
+  const schema = (await db.query(await read('../supabase/verificar-esquema.sql'))).rows;
+  assert.ok(schema.every((component) => component.estado === 'listo'), JSON.stringify(schema));
   const today=(await db.query("select (now() at time zone 'America/Argentina/Buenos_Aires')::date::text d")).rows[0].d;
   await asUser(b);
   assert.equal((await db.query('select local_owner_id() id')).rows[0].id,a);
