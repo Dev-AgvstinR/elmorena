@@ -89,8 +89,9 @@ export default function SalesPanel({
     return (
       <li
         key={order.id}
-        className="sales-order-card rounded-3xl border border-stone-200 bg-white p-6"
+        className={`sales-order-card rounded-3xl border p-6 ${isPaid ? 'border-stone-200 bg-white' : 'sales-order-pending'}`}
       >
+        {!isPaid && <span className="sales-pending-label"><Icon name="pending" /> Por cobrar</span>}
         <h3 className="break-words text-xl font-semibold">
           {order.reference || "Sin referencia"}
         </h3>
@@ -202,8 +203,11 @@ export default function SalesPanel({
       <p role="status" className="mb-5 text-lg text-green-900">
         {notice}
       </p>
-      <section aria-labelledby="pending-sales-title" className="section-card">
-      <h2 id="pending-sales-title" className="mb-4 text-2xl font-semibold"><Icon name="pending" />Pendientes de pago</h2>
+      <section aria-labelledby="pending-sales-title" className="section-card sales-pending-section">
+      <div className="mb-5">
+        <h2 id="pending-sales-title" className="text-2xl font-semibold"><Icon name="pending" />Pendientes de pago</h2>
+        <p className="mt-2 text-stone-700">Pedidos que todavía tenés que cobrar.</p>
+      </div>
       {pendingQuery.isSuccess && !pending.length && (
         <p className="mb-6 text-lg text-stone-600">
           No hay pedidos pendientes.

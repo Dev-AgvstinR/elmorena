@@ -102,7 +102,7 @@ export default function Home({ userId }) {
             </p>
             {closedDetails.isPending && <p role="status" className="mt-5">Cargando resumen…</p>}
             {closedDetails.isError && <div role="alert" className="mt-5"><p>No se pudo cargar el resumen.</p><button type="button" className="libreta-secondary mt-3" onClick={() => closedDetails.refetch()}>Volver a intentar</button></div>}
-            {closedDetails.data && <><DailySummary sales={closedDetails.data.sales_snapshot} /><DailyPaymentHistory sales={closedDetails.data.sales_snapshot} /></>}
+            {closedDetails.data && <><DailyPaymentHistory sales={closedDetails.data.sales_snapshot} /><DailySummary sales={closedDetails.data.sales_snapshot} /></>}
           </section>
         )}
 
@@ -145,26 +145,6 @@ export default function Home({ userId }) {
               <Icon name="order" />
               Realizar pedido
             </button>
-            <SalesStats
-              userId={userId}
-              date={date}
-              actions={
-                <button
-                  type="button"
-                  className="libreta-secondary"
-                  disabled={
-                    finish.isPending || orderDate === date || showMenuModal
-                  }
-                  onClick={() => {
-                    finish.reset();
-                    setConfirmDate(date);
-                  }}
-                >
-                  <Icon name="finish" />
-                  Terminar día
-                </button>
-              }
-            />
             {confirmDate === date && (
               <CenteredDialog
                 title="Confirmar cierre del día"
@@ -291,6 +271,26 @@ export default function Home({ userId }) {
                 ))}
               </div>
             </section>
+            <SalesStats
+              userId={userId}
+              date={date}
+              actions={
+                <button
+                  type="button"
+                  className="libreta-secondary"
+                  disabled={
+                    finish.isPending || orderDate === date || showMenuModal
+                  }
+                  onClick={() => {
+                    finish.reset();
+                    setConfirmDate(date);
+                  }}
+                >
+                  <Icon name="finish" />
+                  Terminar día
+                </button>
+              }
+            />
           </>
         )}
       </div>

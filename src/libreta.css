@@ -22,6 +22,10 @@ select:focus-visible { outline: 3px solid #446744; outline-offset: 4px; }
 .daily-menu-dialog { position: fixed; inset: 0; margin: auto; width: min(680px, calc(100% - 32px)); max-height: calc(100dvh - 48px); padding: clamp(18px, 4vw, 28px); border: 1px solid #e7e5e4; border-radius: 24px; background: #fff; color: #292524; overflow-y: auto; overscroll-behavior: contain; box-shadow: 0 24px 80px rgb(41 37 36 / 18%); }
 .daily-menu-dialog::backdrop { background: rgb(41 37 36 / 55%); }
 .section-card { background: #fff; border: 1px solid #e3e7df; border-radius: 28px; padding: clamp(20px, 4vw, 32px); box-shadow: 0 6px 24px rgb(41 37 36 / 5%); margin-bottom: 28px; }
+.section-card.sales-pending-section { border: 2px solid #d5a951; background: #fff9ec; box-shadow: 0 10px 30px rgb(135 91 22 / 12%); }
+.sales-pending-section h2 > .libreta-icon { color: #9a620b; }
+.sales-order-card.sales-order-pending { border: 2px solid #e5c680; background: #fff; box-shadow: 0 4px 14px rgb(135 91 22 / 8%); }
+.sales-pending-label { display: inline-flex; align-items: center; gap: 6px; margin-bottom: 12px; padding: 5px 11px; border-radius: 999px; background: #fff0c7; color: #784608; font-size: .9rem; font-weight: 800; }
 .libreta-icon { display: inline-block; width: 1.25em; height: 1.25em; flex-shrink: 0; vertical-align: -.2em; stroke-width: 2; }
 h1 > .libreta-icon, h2 > .libreta-icon, h3 > .libreta-icon { margin-right: .5rem; color: #446744; }
 .libreta-icon-badge { display: inline-flex; align-items: center; justify-content: center; width: 48px; height: 48px; margin-bottom: 1rem; border-radius: 15px; background: #eef3ea; color: #446744; }
