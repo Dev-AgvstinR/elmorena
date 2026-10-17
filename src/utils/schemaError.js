@@ -5,6 +5,11 @@ const setupFile = {
   save_daily_menu: 'mejoras-operacion.sql',
   add_daily_expense: 'gastos-diarios.sql',
   delete_daily_expense: 'gastos-diarios.sql',
+  create_pending_order: 'empanadas-pedidos.sql',
+  create_fiado_order: 'fiados-pendientes.sql',
+  fiados_page: 'fiados-pendientes.sql',
+  mark_order_as_fiado: 'fiados-pendientes.sql',
+  edit_order_payment: 'empanadas-pedidos.sql',
 };
 
 export function explainSchemaError(error, functionName) {

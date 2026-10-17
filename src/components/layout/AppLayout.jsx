@@ -4,7 +4,7 @@ import Icon from '../common/Icon';
 import CenteredDialog from '../common/CenteredDialog';
 import { signOut } from '../../services/authService';
 
-const links = [{ to: '/', label: 'Inicio', icon: 'home' }, { to: '/stock', label: 'Stock', icon: 'stock' }, { to: '/historial', label: 'Historial', icon: 'history' }];
+const links = [{ to: '/', label: 'Inicio', icon: 'home' }, { to: '/fiados', label: 'Fiados', icon: 'pending' }, { to: '/stock', label: 'Stock', icon: 'stock' }, { to: '/historial', label: 'Historial', icon: 'history' }];
 export default function AppLayout() {
   const { pathname } = useLocation();
   const [confirmLogout, setConfirmLogout] = useState(false);

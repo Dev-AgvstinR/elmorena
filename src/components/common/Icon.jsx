@@ -1,7 +1,7 @@
 import {
   FiArrowLeft, FiBookOpen, FiCalendar, FiCheckCircle, FiClock,
   FiDollarSign, FiEdit2, FiEyeOff, FiLogIn, FiLogOut, FiPlus, FiRepeat,
-  FiSave, FiShoppingBag, FiSunset, FiTrash2, FiUserPlus, FiX, FiHome, FiPackage,
+  FiSave, FiShoppingBag, FiSunset, FiTrash2, FiUserPlus, FiX, FiHome, FiPackage, FiMoreVertical,
 } from 'react-icons/fi';
 import { LuUtensils, LuGlassWater } from 'react-icons/lu';
 
@@ -12,6 +12,7 @@ const icons = {
   save: FiSave, order: FiShoppingBag, finish: FiSunset, delete: FiTrash2,
   register: FiUserPlus, cancel: FiX,
   home: FiHome, stock: FiPackage, drink: LuGlassWater, logout: FiLogOut,
+  more: FiMoreVertical,
 };
 export default function Icon({ name, className = '' }) {
   const Component = icons[name];

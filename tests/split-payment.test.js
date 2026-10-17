@@ -17,15 +17,15 @@ test('suma el reparto de cada línea y cuenta solo platos', () => {
     { ...base, id: 'a', quantity: 2, total: '6000.50', cash_amount: '5000.25', transfer_amount: '1000.25' },
     { ...base, id: 'b', beverage_id: 'drink', quantity: 1, total: '2499.50', cash_amount: '0', transfer_amount: '2499.50' },
   ];
-  assert.deepEqual(summarizePaidSales(rows), { plates: 2, cashCents: 500025, transferCents: 349975 });
+  assert.deepEqual(summarizePaidSales(rows), { plates: 2, empanadas: 0, cashCents: 500025, transferCents: 349975 });
   const order = groupOrders(rows)[0];
   assert.equal(order.cashCents + order.transferCents, order.totalCents);
 });
 test('los snapshots antiguos mantienen su medio de pago', () => {
   const base = { status: 'vigente', payment_status: 'pagado', quantity: 1, total: '100.25' };
-  assert.deepEqual(summarizePaidSales([{ ...base, payment_method: 'efectivo' }, { ...base, payment_method: 'transferencia' }]), { plates: 2, cashCents: 10025, transferCents: 10025 });
+  assert.deepEqual(summarizePaidSales([{ ...base, payment_method: 'efectivo' }, { ...base, payment_method: 'transferencia' }]), { plates: 2, empanadas: 0, cashCents: 10025, transferCents: 10025 });
 });
 test('anulados y pendientes no aportan cobros ni platos', () => {
   const sale = { quantity: 2, total: 100, cash_amount: 60, transfer_amount: 40, payment_method: 'mixto' };
-  assert.deepEqual(summarizePaidSales([{ ...sale, status: 'anulada', payment_status: 'pagado' }, { ...sale, status: 'vigente', payment_status: 'pendiente' }]), { plates: 0, cashCents: 0, transferCents: 0 });
+  assert.deepEqual(summarizePaidSales([{ ...sale, status: 'anulada', payment_status: 'pagado' }, { ...sale, status: 'vigente', payment_status: 'pendiente' }]), { plates: 0, empanadas: 0, cashCents: 0, transferCents: 0 });
 });

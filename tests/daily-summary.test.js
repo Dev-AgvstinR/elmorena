@@ -21,5 +21,14 @@ test('resume cantidades y precios históricos sin incluir ventas pendientes o an
 });
 
 test('un día sin ventas tiene totales en cero', () => {
-  assert.deepEqual(summarizeDailySales(), { plates: 0, beverages: 0, cashCents: 0, transferCents: 0, totalCents: 0, products: [] });
+  assert.deepEqual(summarizeDailySales(), { plates: 0, empanadas: 0, beverages: 0, cashCents: 0, transferCents: 0, totalCents: 0, products: [] });
+});
+
+test('un fiado cuenta como vendido al anotarlo y no como cobrado', () => {
+  const base = { status: 'vigente', payment_status: 'pendiente', sold_today: true, is_fiado: true, dish_id: 'dish', dishes: { name: 'Guiso' }, quantity: 2, unit_price: '7000', total: '14000' };
+  const summary = summarizeDailySales([base]);
+  assert.equal(summary.plates, 2);
+  assert.equal(summary.totalCents, 0);
+  assert.equal(summary.cashCents, 0);
+  assert.equal(summary.products[0].totalCents, 0);
 });

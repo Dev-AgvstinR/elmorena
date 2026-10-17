@@ -12,11 +12,15 @@ import { useBeverages } from '../hooks/useStock';
 import DailySummary from '../components/sales/DailySummary';
 import DailyPaymentHistory from '../components/sales/DailyPaymentHistory';
 import ExpenseDialog from '../components/sales/ExpenseDialog';
+import { useEmpanadaPrices } from '../hooks/useEmpanadas';
+import { useSalesSummary } from '../hooks/useSales';
 
 export default function Home({ userId }) {
   const dishes = useDishes(userId);
   const beverages = useBeverages(userId);
+  const empanadas = useEmpanadaPrices(userId);
   const date = useMenuDate();
+  const salesSummary = useSalesSummary(userId, date);
   const menu = useDailyMenu(userId, date);
   const closure = useDayClosure(userId, date);
   const closedDetails = useHistoryDay(userId, closure.data?.id);
@@ -99,8 +103,8 @@ export default function Home({ userId }) {
               Día terminado
             </h2>
             <p className="mt-4 text-lg">
-              El menú, los pedidos pagados y los gastos quedaron guardados. Mañana podrás
-              armar un nuevo menú.
+              El menú, las ventas registradas y los gastos quedaron guardados. Los fiados
+              siguen en la página Fiados hasta que los cobres.
             </p>
             {closedDetails.isPending && <p role="status" className="mt-5">Cargando resumen…</p>}
             {closedDetails.isError && <div role="alert" className="mt-5"><p>No se pudo cargar el resumen.</p><button type="button" className="libreta-secondary mt-3" onClick={() => closedDetails.refetch()}>Volver a intentar</button></div>}
@@ -139,7 +143,7 @@ export default function Home({ userId }) {
                 disabled={
                   !menu.isSuccess ||
                   !dishes.isSuccess ||
-                  (!todayDishes.length && !beverages.data?.some((beverage) => beverage.stock_quantity > 0)) ||
+                  (!todayDishes.length && !beverages.data?.some((beverage) => beverage.stock_quantity > 0) && !empanadas.query.data?.length) ||
                   showMenuModal ||
                   finish.isPending
                 }
@@ -166,13 +170,9 @@ export default function Home({ userId }) {
                   ¿Estás seguro de terminar el día?
                 </h2>
                 <p className="my-5 text-lg text-stone-600">
-                  El menú, los pedidos pagados y los gastos se guardarán en Historial y se
-                  limpiará el inicio. No podrás agregar pedidos hasta mañana.
+                  El menú, las ventas y los gastos se guardarán en Historial.
                 </p>
-                <p className="mb-6 text-lg">
-                  Si quedan pedidos pendientes, tendrás que resolverlos antes de
-                  cerrar.
-                </p>
+                <p className="mb-6 text-lg">Los fiados pueden quedar en Fiados y se registrarán como ingreso el día que los cobres. Los demás pedidos pendientes tienen que cobrarse o eliminarse antes de cerrar.</p>
                 {finish.error && (
                   <p role="alert" className="mb-5 text-lg text-red-800">
                     {finish.error.message}
@@ -204,6 +204,7 @@ export default function Home({ userId }) {
               userId={userId}
               date={date}
               dishes={todayDishes}
+              empanadaPrices={empanadas.query.data ?? []}
               orderOpen={orderDate === date && !showMenuModal}
               onCloseOrder={() => setOrderDate(null)}
             />
@@ -274,6 +275,7 @@ export default function Home({ userId }) {
                   <DishCard
                     key={`${dish.id}-${dish.image_path}`}
                     dish={dish}
+                    soldCount={salesSummary.data?.dishQuantities?.[dish.id]}
                     readOnly
                   />
                 ))}
@@ -282,6 +284,7 @@ export default function Home({ userId }) {
             <SalesStats
               userId={userId}
               date={date}
+              query={salesSummary}
               actions={
                 <button
                   type="button"

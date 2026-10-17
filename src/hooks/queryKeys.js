@@ -4,4 +4,5 @@ export const queryKeys = {
   menu: (userId, date) => ['daily-menu', userId, date],
   sales: (userId) => ['sales', userId],
   salesDay: (userId, date) => ['sales', userId, date],
+  fiados: (userId) => ['fiados', userId],
 };

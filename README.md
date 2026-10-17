@@ -23,7 +23,14 @@ pública. Genera `dist/manifest.webmanifest`, `dist/sw.js` e íconos PNG.
    `supabase/mejoras-operacion.sql`. Esta última función instala
    `save_daily_menu`, `sales_summary` y `sales_page`. Ejecutar después
    `supabase/gastos-diarios.sql` para habilitar el botón de gastos y guardar su
-   detalle en cada cierre. Volver a ejecutar la
+   detalle en cada cierre. Ejecutar luego `supabase/empanadas-pedidos.sql` para
+   configurar sus precios y registrarlas por unidad, media docena o docena.
+   Por último, ejecutar `supabase/fiados-pendientes.sql` para agregar la lista
+   Fiados separada: esos pedidos cuentan como vendidos al anotarlos y el cobro
+   se suma al día en que se paga. Desde el menú de tres puntos de un pedido
+   normal pendiente también se puede mover a Fiados. Los pedidos normales por
+   cobrar siguen en Inicio y deben resolverse antes de terminar el día.
+   Volver a ejecutar la
    verificación: todas las filas deben decir `listo`.
 2. Conectar este repositorio en Vercel como proyecto Vite. Usar `npm ci`
    para instalar, `npm run build` para compilar y `dist` como directorio de
@@ -32,7 +39,7 @@ pública. Genera `dist/manifest.webmanifest`, `dist/sw.js` e íconos PNG.
 3. En Project Settings → Environment Variables, agregar `VITE_SUPABASE_URL`
    y `VITE_SUPABASE_PUBLISHABLE_KEY` para Production. Usar la URL HTTPS y la
    clave publishable del mismo proyecto Supabase.
-4. Publicar y abrir la URL HTTPS. Comprobar `/`, `/stock` y `/historial`,
+4. Publicar y abrir la URL HTTPS. Comprobar `/`, `/fiados`, `/stock` y `/historial`,
    incluida la recarga directa de cada ruta. Iniciar sesión, crear un pedido
    de prueba y verificar que aparece en otra cuenta.
 5. En Supabase Auth → URL Configuration, establecer Site URL con la URL

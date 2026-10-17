@@ -6,6 +6,7 @@ import { groupOrders, summarizePaidSales, orderItemName } from '../utils/sales';
 import PaymentSummary from '../components/sales/PaymentSummary';
 import DailySummary from '../components/sales/DailySummary';
 import DailyPaymentHistory from '../components/sales/DailyPaymentHistory';
+import { formatEmpanadaCount } from '../utils/sales';
 
 const money = new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' });
 export default function History({ userId }) {
@@ -28,16 +29,18 @@ function HistoryDay({ userId, entry }) {
   const query = useHistoryDay(userId, open ? entry.id : null);
   const day = query.data;
   const stats = day ? summarizePaidSales(day.sales_snapshot) : null;
-  const orders = day ? groupOrders(day.sales_snapshot) : [];
+  const orders = day ? groupOrders(day.sales_snapshot.filter((sale) => sale.sold_today !== false)) : [];
+  const paidOrders = day ? groupOrders(day.sales_snapshot.filter((sale) => sale.status === 'vigente' && sale.payment_status === 'pagado' && sale.paid_today !== false)) : [];
   return <details className="rounded-3xl border border-stone-200 bg-white p-6" onToggle={(event) => setOpen(event.currentTarget.open)}>
-    <summary className="cursor-pointer text-2xl font-semibold"><span className="capitalize">{new Intl.DateTimeFormat('es-AR', { dateStyle: 'full', timeZone: 'America/Argentina/Buenos_Aires' }).format(new Date(`${entry.business_date}T12:00:00-03:00`))}</span>{stats && <span className="mt-3 block text-lg font-normal">{stats.plates} platos · {orders.length} pedidos</span>}</summary>
+    <summary className="cursor-pointer text-2xl font-semibold"><span className="capitalize">{new Intl.DateTimeFormat('es-AR', { dateStyle: 'full', timeZone: 'America/Argentina/Buenos_Aires' }).format(new Date(`${entry.business_date}T12:00:00-03:00`))}</span>{stats && <span className="mt-3 block text-lg font-normal">{stats.plates} platos · {stats.empanadas} empanadas ({formatEmpanadaCount(stats.empanadas)}) · {orders.length} pedidos</span>}</summary>
     {open && query.isPending && <p role="status" className="mt-4">Cargando detalle…</p>}
     {open && query.isError && <div role="alert" className="mt-4"><p>No se pudo cargar este día. {query.error.message}</p><button type="button" className="libreta-secondary mt-3" onClick={() => query.refetch()}>Volver a intentar</button></div>}
     {open && day && <>
         <DailySummary sales={day.sales_snapshot} expenses={day.expenses_snapshot ?? []} />
         <DailyPaymentHistory sales={day.sales_snapshot} />
         <details className="mt-6 rounded-2xl border border-stone-200 p-4"><summary className="cursor-pointer text-xl font-semibold">Menú del día</summary><ul className="space-y-2">{day.menu_snapshot.map((dish) => <li key={dish.id} className="text-lg">{dish.name} · {money.format(Number(dish.price))}</li>)}</ul>{!day.menu_snapshot.length && <p>Sin menú guardado.</p>}</details>
-        <details className="mt-4 rounded-2xl border border-stone-200 p-4"><summary className="mb-3 cursor-pointer text-xl font-semibold">Ver detalle de los pedidos pagados</summary><ul className="space-y-4">{orders.map((order) => <li key={order.id} className="rounded-2xl bg-stone-50 p-4"><h3 className="break-words text-xl font-medium">{order.reference || 'Sin referencia'}</h3><ul className="my-3 space-y-2">{order.items.map((item) => <li key={item.id} className="text-lg">{item.quantity} × {orderItemName(item)} · {money.format(Number(item.total))}</li>)}</ul><p className="text-lg font-medium">{money.format(order.totalCents / 100)}</p><PaymentSummary order={order} /></li>)}</ul>{!orders.length && <p>Sin pedidos pagados.</p>}</details>
+        <details className="mt-4 rounded-2xl border border-stone-200 p-4"><summary className="mb-3 cursor-pointer text-xl font-semibold">Ver pedidos vendidos durante el día</summary><ul className="space-y-4">{orders.map((order) => <li key={order.id} className="rounded-2xl bg-stone-50 p-4"><h3 className="break-words text-xl font-medium">{order.reference || 'Sin referencia'}</h3>{order.isFiado && <p className="mt-1 text-amber-800">Fiado · {order.state === 'pagado' ? (order.items.some((item) => item.sold_today === false && item.paid_today) ? 'cobrado después' : 'cobrado') : 'pendiente de cobro'}</p>}{order.serviceType && <p className="mt-1 text-lg text-green-900">Empanadas · {order.serviceType === 'llevar' ? 'Para llevar' : 'Comer en el lugar'}</p>}<ul className="my-3 space-y-2">{order.items.map((item) => <li key={item.id} className="text-lg">{item.quantity} × {orderItemName(item)}{item.empanada_flavor ? ` · ${item.empanada_pack_size === 12 ? 'docena' : item.empanada_pack_size === 6 ? 'media docena' : 'unidad'}` : ''} · {money.format(Number(item.total))}</li>)}</ul><p className="text-lg font-medium">{money.format(order.totalCents / 100)}</p>{order.state === 'pagado' && order.items.some((item) => item.paid_today !== false) && <PaymentSummary order={order} />}</li>)}</ul>{!orders.length && <p>Sin pedidos vendidos.</p>}</details>
+        <details className="mt-4 rounded-2xl border border-stone-200 p-4"><summary className="mb-3 cursor-pointer text-xl font-semibold">Pagos recibidos este día</summary><ul className="space-y-3">{paidOrders.map((order) => <li key={order.id} className="rounded-xl bg-stone-50 p-4"><p className="text-lg font-semibold">{order.reference || 'Sin referencia'}</p><PaymentSummary order={order} /></li>)}</ul>{!paidOrders.length && <p>Sin pagos recibidos.</p>}</details>
 
     </>}
   </details>;

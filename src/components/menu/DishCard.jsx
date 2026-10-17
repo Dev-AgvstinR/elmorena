@@ -11,6 +11,7 @@ export default function DishCard({
   onEdit,
   onArchive,
   pending,
+  soldCount,
   readOnly = false,
 }) {
   const [failed, setFailed] = useState(false);
@@ -34,6 +35,7 @@ export default function DishCard({
       <div className="p-6">
         <h3 className="break-words text-2xl font-semibold">{dish.name}</h3>
         <p className="my-4 text-2xl">{money.format(Number(dish.price))}</p>
+        {soldCount !== undefined && <p className="mb-4 rounded-xl bg-stone-50 px-4 py-3 text-lg text-stone-700">Vendidos hoy: <strong className="text-xl tabular-nums text-stone-900">{new Intl.NumberFormat('es-AR').format(soldCount)}</strong></p>}
         {!readOnly && (
           <div className="flex flex-wrap gap-3">
             <button

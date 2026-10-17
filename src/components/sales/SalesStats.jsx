@@ -1,14 +1,11 @@
-import { useSalesSummary } from "../../hooks/useSales";
 import SalesSummaryCards from "./SalesSummaryCards";
 import { useDailyExpenses } from '../../hooks/useExpenses';
-import { summarizeExpenses } from '../../utils/expenses';
 import ExpenseList from './ExpenseList';
 
-export default function SalesStats({ userId, date, actions }) {
-  const query = useSalesSummary(userId, date);
+export default function SalesStats({ userId, date, actions, query }) {
   const expenseQuery = useDailyExpenses(userId, date);
-  const stats = query.data ?? { plates: 0, beverages: 0, totalCents: 0, cashCents: 0, transferCents: 0 };
-  const expenses = expenseQuery.isSuccess ? summarizeExpenses(expenseQuery.data) : undefined;
+  const stats = query.data ?? { plates: 0, empanadas: 0, beverages: 0, totalCents: 0, cashCents: 0, transferCents: 0 };
+  const expenses = { view: 'live', count: expenseQuery.isSuccess ? expenseQuery.data.length : null };
   const ready = query.isSuccess;
   return (
     <section aria-labelledby="stats-title" className="section-card">
